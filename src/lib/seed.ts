@@ -3,7 +3,7 @@ import config from '../config/index';
 import { prisma } from './prisma';
 
 const ADMIN_EMAIL = config.admin_email || 'admin@example.com';
-const ADMIN_NAME = config.admin_name || 'Super Admin';
+const ADMIN_NAME = config.admin_name || 'Admin';
 const ADMIN_PASSWORD = config.admin_password || '11111111';
 
 export const seedAdmin = async (): Promise<void> => {
@@ -28,5 +28,5 @@ export const seedAdmin = async (): Promise<void> => {
     },
   });
 
-  console.log(`[Seed] Super Admin created successfully: ${ADMIN_EMAIL}`);
+  console.log(`[Seed] Admin created successfully: ${ADMIN_EMAIL}`);
 };
