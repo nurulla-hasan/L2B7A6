@@ -1,0 +1,20 @@
+model Enrollment {
+  id               String           @id @default(uuid())
+  studentId        String           @map("student_id")
+  courseOfferingId String           @map("course_offering_id")
+  status           EnrollmentStatus @default(PENDING_PAYMENT)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  student          User             @relation(fields: [studentId], references: [id])
+  courseOffering   CourseOffering   @relation(fields: [courseOfferingId], references: [id])
+  payments         Payment[]
+  result           Result?
+
+  @@unique([studentId, courseOfferingId])
+  @@index([studentId])
+  @@index([courseOfferingId])
+  @@index([status])
+  @@map("enrollments")
+}
+

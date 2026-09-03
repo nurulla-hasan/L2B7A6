@@ -14,8 +14,13 @@ model User {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
 
-  teacherProfile TeacherProfile?
-  studentProfile StudentProfile?
+  teacherProfile  TeacherProfile?
+  studentProfile  StudentProfile?
+
+  courseOfferings CourseOffering[]
+  enrollments     Enrollment[]
+  resultsGiven    Result[]
+  auditLogs       AuditLog[]
 
   @@map("users")
 }

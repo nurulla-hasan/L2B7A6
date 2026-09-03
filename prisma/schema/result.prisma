@@ -1,0 +1,18 @@
+model Result {
+  id           String     @id @default(uuid())
+  enrollmentId String     @unique @map("enrollment_id")
+  teacherId    String     @map("teacher_id")
+  marks        Float
+  grade        String
+  published    Boolean    @default(false)
+  publishedAt  DateTime?  @map("published_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  teacher      User       @relation(fields: [teacherId], references: [id])
+
+  @@index([teacherId])
+  @@map("results")
+}
+

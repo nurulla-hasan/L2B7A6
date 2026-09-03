@@ -1,0 +1,18 @@
+model Payment {
+  id             String         @id @default(uuid())
+  enrollmentId   String         @map("enrollment_id")
+  amount         Int
+  transactionId  String         @unique @map("transaction_id")
+  gateway        PaymentGateway @default(SSLCOMMERZ)
+  status         PaymentStatus  @default(PENDING)
+  paymentDetails Json?          @map("payment_details")
+  paidAt         DateTime?      @map("paid_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  enrollment     Enrollment     @relation(fields: [enrollmentId], references: [id])
+
+  @@index([enrollmentId])
+  @@map("payments")
+}
+

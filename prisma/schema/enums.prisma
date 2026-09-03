@@ -14,3 +14,31 @@ enum AuthProvider {
   GOOGLE
 }
 
+enum EnrollmentStatus {
+  PENDING_PAYMENT
+  ENROLLED
+  DROPPED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum PaymentGateway {
+  SSLCOMMERZ
+}
+
+enum AuditAction {
+  CREATE_SEMESTER
+  CREATE_COURSE
+  CREATE_COURSE_OFFERING
+  ENROLL_COURSE
+  DROP_COURSE
+  PAYMENT_SUCCESS
+  SUBMIT_RESULT
+  PUBLISH_RESULT
+  UPDATE_USER_STATUS
+}

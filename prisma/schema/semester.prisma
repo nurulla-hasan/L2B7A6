@@ -1,0 +1,16 @@
+model Semester {
+  id              String           @id @default(uuid())
+  name            String
+  year            Int
+  startDate       DateTime         @map("start_date")
+  endDate         DateTime         @map("end_date")
+  deletedAt       DateTime?        @map("deleted_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  courseOfferings CourseOffering[]
+
+  @@unique([name, year])
+  @@map("semesters")
+}
+
