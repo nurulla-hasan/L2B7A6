@@ -1,0 +1,82 @@
+import type { Request, RequestHandler } from 'express';
+import httpStatus from 'http-status';
+import jwt, { type JwtPayload } from 'jsonwebtoken';
+import type { Role } from '../../generated/prisma/enums.js';
+import config from '../config/index.js';
+import { prisma } from '../lib/prisma.js';
+import { AppError } from '../utils/app-error.js';
+import { catchAsync } from '../utils/catch-async.js';
+import { jwtUtils } from '../utils/jwt.js';
+
+const getAccessToken = (req: Request): string | undefined => {
+  const token =
+    req.cookies?.accessToken ??
+    (req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.split(' ')[1]
+      : req.headers.authorization);
+
+  return token ? token : undefined;
+};
+
+export const auth = (...allowedRoles: Role[]): RequestHandler =>
+  catchAsync(async (req, _res, next) => {
+    const token = getAccessToken(req);
+    if (!token) throw new AppError(httpStatus.UNAUTHORIZED, 'You are not logged in!');
+
+    let decoded: JwtPayload;
+    try {
+      decoded = jwtUtils.verifyToken(token, config.jwt_access_secret);
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'Access token has expired');
+      }
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'Access token is invalid');
+      }
+      throw error;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+      },
+    });
+
+    if (!user) {
+      return next(new AppError(httpStatus.UNAUTHORIZED, 'User not found'));
+    }
+    if (!user.emailVerified) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Your email is not verified!');
+    }
+    if (user.status !== 'ACTIVE') {
+      throw new AppError(httpStatus.FORBIDDEN, 'Your account is disabled or blocked');
+    }
+
+    // Role check
+    if (allowedRoles.length > 0) {
+      const isAuthorized = allowedRoles.includes(user.role);
+
+      if (!isAuthorized) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          'You do not have permission to access this resource',
+        );
+      }
+    }
+
+    req.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    };
+
+    next();
+  });

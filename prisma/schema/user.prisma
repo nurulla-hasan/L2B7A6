@@ -1,0 +1,50 @@
+model User {
+  id             String       @id @default(uuid())
+  name           String
+  email          String       @unique
+  password       String?
+  googleId       String?      @unique @map("google_id")
+  authProvider   AuthProvider @default(CREDENTIAL) @map("auth_provider")
+  emailVerified  Boolean      @default(false) @map("email_verified")
+  role           Role         @default(STUDENT)
+  status         UserStatus   @default(ACTIVE)
+  imageUrl       String       @default("") @map("image_url")
+  imagePublicId  String       @default("") @map("image_public_id")
+  phone          String       @default("")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  teacherProfile TeacherProfile?
+  studentProfile StudentProfile?
+
+  @@map("users")
+}
+
+model TeacherProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  designation String   @default("")
+  department  String   @default("")
+  employeeId  String   @default("") @map("employee_id")
+  bio         String   @default("")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("teacher_profiles")
+}
+
+model StudentProfile {
+  id         String   @id @default(uuid())
+  userId     String   @unique @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentId  String   @default("") @map("student_id")
+  department String   @default("")
+  batch      String   @default("")
+  semester   String   @default("")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("student_profiles")
+}
+

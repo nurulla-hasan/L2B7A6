@@ -1,0 +1,16 @@
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum AuthProvider {
+  CREDENTIAL
+  GOOGLE
+}
+
