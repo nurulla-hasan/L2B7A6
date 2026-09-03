@@ -1,8 +1,8 @@
 {
-  "name": "backend-boilerplate",
+  "name": "university-management-system-api",
   "version": "1.0.0",
   "private": true,
-  "description": "Production-ready Node.js Express REST API boilerplate with Auth & RBAC",
+  "description": "REST API for University Management System",
   "type": "module",
   "main": "dist/server.js",
   "engines": {

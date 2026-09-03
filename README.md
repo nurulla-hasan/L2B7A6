@@ -1,6 +1,6 @@
-# Academic Portal Backend Boilerplate
+# University Management System API
 
-A production-ready Node.js & Express REST API boilerplate built with TypeScript, Prisma 7, PostgreSQL, Redis, and JWT authentication with Role-Based Access Control (RBAC).
+REST API for University Management System built with TypeScript, Express 5, Prisma 7, PostgreSQL, Redis, and JWT authentication with Role-Based Access Control (RBAC).
 
 ---
 
