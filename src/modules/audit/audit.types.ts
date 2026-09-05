@@ -7,4 +7,3 @@ export interface IAuditLogData {
   resourceId?: string;
   details?: Prisma.InputJsonValue;
 }
-

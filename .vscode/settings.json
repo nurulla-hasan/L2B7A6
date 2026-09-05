@@ -1,8 +1,0 @@
-{
-  "files.associations": {
-    "*.ejs": "html"
-  },
-  "html.validate.scripts": false,
-  "html.validate.styles": false,
-  "biome.lsp.bin": null
-}
