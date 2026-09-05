@@ -12,17 +12,23 @@ export const cloudinary = Cloudinary;
 export const uploadToCloudinary = (
   buffer: Buffer,
   folder = 'portal/profiles',
+  transformation?: Record<string, unknown>[],
 ): Promise<UploadApiResponse> => {
   return new Promise((resolve, reject) => {
+    const defaultTransform =
+      folder === 'portal/profiles'
+        ? [
+            { width: 500, height: 500, crop: 'fill', gravity: 'face' },
+            { quality: 'auto', fetch_format: 'auto' },
+          ]
+        : [{ quality: 'auto', fetch_format: 'auto' }];
+
     cloudinary.uploader
       .upload_stream(
         {
           folder,
           resource_type: 'image',
-          transformation: [
-            { width: 500, height: 500, crop: 'fill', gravity: 'face' },
-            { quality: 'auto', fetch_format: 'auto' },
-          ],
+          transformation: transformation || defaultTransform,
         },
         (error, result) => {
           if (error) return reject(error);
