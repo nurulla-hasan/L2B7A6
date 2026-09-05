@@ -9,4 +9,3 @@ export interface IUpdateCoursePayload {
   code?: string;
   credits?: number;
 }
-

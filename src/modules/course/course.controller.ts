@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import { AppError } from '../../utils/app-error';
 import { catchAsync } from '../../utils/catch-async';
 import { sendResponse } from '../../utils/send-response';
-import { CourseServices } from './course.service';
+import { courseService } from './course.service';
 import { createCourseValidationSchema, updateCourseValidationSchema } from './course.validation';
 
 const createCourse = catchAsync(async (req: Request, res: Response) => {
@@ -21,7 +21,7 @@ const createCourse = catchAsync(async (req: Request, res: Response) => {
 
   const payload = zodValidationResult.data;
 
-  const result = await CourseServices.createCourseIntoDB(payload, files, req.user?.id);
+  const result = await courseService.createCourseIntoDB(payload, files, req.user?.id);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -36,7 +36,7 @@ const getAllCourses = catchAsync(async (req: Request, res: Response) => {
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const searchTerm = req.query.searchTerm as string | undefined;
 
-  const result = await CourseServices.getAllCoursesFromDB({ page, limit, searchTerm });
+  const result = await courseService.getAllCoursesFromDB({ page, limit, searchTerm });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -48,7 +48,7 @@ const getAllCourses = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getCourseById = catchAsync(async (req: Request, res: Response) => {
-  const result = await CourseServices.getCourseByIdFromDB(req.params.id as string);
+  const result = await courseService.getCourseByIdFromDB(req.params.id as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -73,7 +73,7 @@ const updateCourse = catchAsync(async (req: Request, res: Response) => {
 
   const payload = zodValidationResult.data;
 
-  const result = await CourseServices.updateCourseIntoDB(req.params.id as string, payload, files);
+  const result = await courseService.updateCourseIntoDB(req.params.id as string, payload, files);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -84,7 +84,7 @@ const updateCourse = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteCourse = catchAsync(async (req: Request, res: Response) => {
-  const result = await CourseServices.deleteCourseFromDB(req.params.id as string);
+  const result = await courseService.deleteCourseFromDB(req.params.id as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -94,7 +94,7 @@ const deleteCourse = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const CourseController = {
+export const courseController = {
   createCourse,
   getAllCourses,
   getCourseById,

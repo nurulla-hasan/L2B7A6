@@ -207,7 +207,7 @@ const deleteCourseFromDB = async (id: string) => {
   return { message: 'Course deleted successfully' };
 };
 
-export const CourseServices = {
+export const courseService = {
   createCourseIntoDB,
   getAllCoursesFromDB,
   getCourseByIdFromDB,

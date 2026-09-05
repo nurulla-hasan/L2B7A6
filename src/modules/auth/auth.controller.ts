@@ -155,7 +155,7 @@ const googleLoginCallback: RequestHandler = (req, res) => {
   res.redirect(redirectUrl.toString());
 };
 
-const getMe: RequestHandler = catchAsync(async (req, res) => {
+const getMe = catchAsync(async (req, res) => {
   const user = await authService.getMeFromDB(req.user?.id as string);
 
   sendResponse(res, {

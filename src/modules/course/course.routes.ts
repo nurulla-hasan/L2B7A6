@@ -1,23 +1,21 @@
 import { Router } from 'express';
 import { upload } from '../../lib/multer';
 import { auth } from '../../middlewares/auth';
-import { CourseController } from './course.controller';
+import { courseController } from './course.controller';
 
-const router = Router();
+export const courseRouter = Router();
 
 // Create new course with multipart form-data & multiple images upload
-router.post('/', auth('ADMIN'), upload.array('images', 5), CourseController.createCourse);
+courseRouter.post('/', auth('ADMIN'), upload.array('images', 5), courseController.createCourse);
 
 // Get all courses with search & pagination (Authenticated)
-router.get('/', auth(), CourseController.getAllCourses);
+courseRouter.get('/', auth(), courseController.getAllCourses);
 
 // Get single course by ID (Authenticated)
-router.get('/:id', auth(), CourseController.getCourseById);
+courseRouter.get('/:id', auth(), courseController.getCourseById);
 
 // Update course (Admin only)
-router.patch('/:id', auth('ADMIN'), upload.array('images', 5), CourseController.updateCourse);
+courseRouter.patch('/:id', auth('ADMIN'), upload.array('images', 5), courseController.updateCourse);
 
 // Soft delete course (Admin only)
-router.delete('/:id', auth('ADMIN'), CourseController.deleteCourse);
-
-export const CourseRoutes = router;
+courseRouter.delete('/:id', auth('ADMIN'), courseController.deleteCourse);
