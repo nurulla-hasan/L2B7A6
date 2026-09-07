@@ -3,7 +3,7 @@ import app from './app';
 import config from './config/index';
 import { prisma } from './lib/prisma';
 import { ensureRedisConnected, redisClient } from './lib/redis';
-import { seedAdmin } from './lib/seed';
+import { seed } from './lib/seed';
 
 const server = createServer(app);
 let shuttingDown = false;
@@ -13,7 +13,7 @@ async function main() {
     await prisma.$connect();
     console.log('Database connected successfully');
 
-    await seedAdmin();
+    await seed();
     await ensureRedisConnected();
 
     const port = Number(config.port) || 5000;

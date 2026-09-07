@@ -5,10 +5,7 @@ import { sendResponse } from '../../utils/send-response';
 import { courseOfferingService } from './course-offering.service';
 
 const createCourseOffering: RequestHandler = catchAsync(async (req, res) => {
-  const result = await courseOfferingService.createCourseOfferingIntoDB(
-    req.body,
-    req.user?.id,
-  );
+  const result = await courseOfferingService.createCourseOfferingIntoDB(req.body, req.user?.id);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -45,9 +42,7 @@ const getAllCourseOfferings: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const getCourseOfferingById: RequestHandler = catchAsync(async (req, res) => {
-  const result = await courseOfferingService.getCourseOfferingByIdFromDB(
-    req.params.id as string,
-  );
+  const result = await courseOfferingService.getCourseOfferingByIdFromDB(req.params.id as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -72,9 +67,7 @@ const updateCourseOffering: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const deleteCourseOffering: RequestHandler = catchAsync(async (req, res) => {
-  const result = await courseOfferingService.deleteCourseOfferingFromDB(
-    req.params.id as string,
-  );
+  const result = await courseOfferingService.deleteCourseOfferingFromDB(req.params.id as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -91,4 +84,3 @@ export const courseOfferingController = {
   updateCourseOffering,
   deleteCourseOffering,
 };
-

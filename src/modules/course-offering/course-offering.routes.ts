@@ -32,9 +32,4 @@ courseOfferingRouter.patch(
 );
 
 // Soft delete course offering (Admin only)
-courseOfferingRouter.delete(
-  '/:id',
-  auth('ADMIN'),
-  courseOfferingController.deleteCourseOffering,
-);
-
+courseOfferingRouter.delete('/:id', auth('ADMIN'), courseOfferingController.deleteCourseOffering);

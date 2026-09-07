@@ -8,10 +8,7 @@ import type {
   UpdateCourseOfferingInput,
 } from './course-offering.validation';
 
-const createCourseOfferingIntoDB = async (
-  payload: CreateCourseOfferingInput,
-  adminId?: string,
-) => {
+const createCourseOfferingIntoDB = async (payload: CreateCourseOfferingInput, adminId?: string) => {
   // 1. Verify Course exists & is not soft-deleted
   const course = await prisma.course.findFirst({
     where: { id: payload.courseId, deletedAt: null },
@@ -34,14 +31,10 @@ const createCourseOfferingIntoDB = async (
       id: payload.teacherId,
       role: Role.TEACHER,
       status: UserStatus.ACTIVE,
-      deletedAt: null,
     },
   });
   if (!teacher) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Assigned user must be an active teacher',
-    );
+    throw new AppError(httpStatus.BAD_REQUEST, 'Assigned user must be an active teacher');
   }
 
   // 4. Guardrail: duplicate offering (same course, semester, section)
@@ -185,10 +178,7 @@ const getCourseOfferingByIdFromDB = async (id: string) => {
   return offering;
 };
 
-const updateCourseOfferingIntoDB = async (
-  id: string,
-  payload: UpdateCourseOfferingInput,
-) => {
+const updateCourseOfferingIntoDB = async (id: string, payload: UpdateCourseOfferingInput) => {
   const existing = await getCourseOfferingByIdFromDB(id);
 
   if (payload.teacherId) {
@@ -197,14 +187,10 @@ const updateCourseOfferingIntoDB = async (
         id: payload.teacherId,
         role: Role.TEACHER,
         status: UserStatus.ACTIVE,
-        deletedAt: null,
       },
     });
     if (!teacher) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        'Assigned user must be an active teacher',
-      );
+      throw new AppError(httpStatus.BAD_REQUEST, 'Assigned user must be an active teacher');
     }
   }
 
@@ -255,4 +241,3 @@ export const courseOfferingService = {
   updateCourseOfferingIntoDB,
   deleteCourseOfferingFromDB,
 };
-

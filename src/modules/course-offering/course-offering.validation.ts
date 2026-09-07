@@ -49,4 +49,3 @@ export const updateCourseOfferingSchema = z.object({
 
 export type CreateCourseOfferingInput = z.infer<typeof createCourseOfferingSchema>;
 export type UpdateCourseOfferingInput = z.infer<typeof updateCourseOfferingSchema>;
-
