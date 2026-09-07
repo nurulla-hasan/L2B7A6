@@ -6,10 +6,7 @@ import { sendResponse } from '../../utils/send-response';
 import { resultService } from './result.service';
 
 const submitResult: RequestHandler = catchAsync(async (req, res) => {
-  const result = await resultService.submitResultIntoDB(
-    req.user?.id as string,
-    req.body,
-  );
+  const result = await resultService.submitResultIntoDB(req.user?.id as string, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -76,10 +73,7 @@ const getOfferingResults: RequestHandler = catchAsync(async (req, res) => {
 const getAllResults: RequestHandler = catchAsync(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : 1;
   const limit = req.query.limit ? Number(req.query.limit) : 10;
-  const published =
-    req.query.published !== undefined
-      ? req.query.published === 'true'
-      : undefined;
+  const published = req.query.published !== undefined ? req.query.published === 'true' : undefined;
 
   const result = await resultService.getAllResultsFromDB({
     page,
@@ -119,4 +113,3 @@ export const resultController = {
   getAllResults,
   getResultById,
 };
-

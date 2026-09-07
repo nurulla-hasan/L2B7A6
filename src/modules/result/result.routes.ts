@@ -2,11 +2,7 @@ import { Router } from 'express';
 import { auth } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
 import { resultController } from './result.controller';
-import {
-  publishResultSchema,
-  submitResultSchema,
-  updateResultSchema,
-} from './result.validation';
+import { publishResultSchema, submitResultSchema, updateResultSchema } from './result.validation';
 
 export const resultRouter = Router();
 
@@ -22,11 +18,7 @@ resultRouter.patch(
 );
 
 // Teacher or Admin views results for a specific course offering
-resultRouter.get(
-  '/offering/:id',
-  auth('TEACHER', 'ADMIN'),
-  resultController.getOfferingResults,
-);
+resultRouter.get('/offering/:id', auth('TEACHER', 'ADMIN'), resultController.getOfferingResults);
 
 // Teacher submits marks for an enrolled student
 resultRouter.post(
@@ -40,11 +32,7 @@ resultRouter.post(
 resultRouter.get('/', auth('ADMIN'), resultController.getAllResults);
 
 // Authenticated user views a single result by ID
-resultRouter.get(
-  '/:id',
-  auth('ADMIN', 'TEACHER', 'STUDENT'),
-  resultController.getResultById,
-);
+resultRouter.get('/:id', auth('ADMIN', 'TEACHER', 'STUDENT'), resultController.getResultById);
 
 // Teacher or Admin updates result marks or publish status
 resultRouter.patch(
@@ -53,4 +41,3 @@ resultRouter.patch(
   validate(updateResultSchema),
   resultController.updateResult,
 );
-
