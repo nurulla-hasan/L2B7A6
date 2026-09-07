@@ -1,9 +1,15 @@
 import bcrypt from 'bcryptjs';
 import httpStatus from 'http-status';
-import { AuthProvider, type Prisma, type Role } from '../../../generated/prisma/client';
+import {
+  AuditAction,
+  AuthProvider,
+  type Prisma,
+  type Role,
+} from '../../../generated/prisma/client';
 import { deleteFromCloudinary, uploadToCloudinary } from '../../lib/cloudinary';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../utils/app-error';
+import { createAuditLog } from '../audit/audit.service';
 import type {
   CreateAdminInput,
   GetUsersQueryInput,
@@ -172,6 +178,19 @@ const updateUserStatusIntoDB = async (
       email: true,
       role: true,
       status: true,
+    },
+  });
+
+  await createAuditLog({
+    userId: currentUserId,
+    action: AuditAction.UPDATE_USER_STATUS,
+    resource: 'User',
+    resourceId: id,
+    details: {
+      userEmail: user.email,
+      userName: user.name,
+      previousStatus: user.status,
+      newStatus: payload.status,
     },
   });
 
