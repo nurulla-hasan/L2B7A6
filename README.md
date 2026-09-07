@@ -17,10 +17,10 @@ This system powers academic workflows including **Role-Based Access Control (RBA
 
 ## 🌐 Live & Project Links
 
-- **Live Deployment API**: `https://l2-b7-a6-university-management.vercel.app` *(or your production URL)*
-- **API Health Endpoint**: `https://l2-b7-a6-university-management.vercel.app/`
+- **Live Deployment API**: `https://l2-b7-a6.vercel.app`
+- **API Health Endpoint**: `https://l2-b7-a6.vercel.app/`
 - **GitHub Repository**: [https://github.com/nurulla-hasan/L2B7A6](https://github.com/nurulla-hasan/L2B7A6)
-- **Postman Collection**: [Download / View in Repo](docs/postman.json)
+- **API Documentation**: [Postman Published Docs](https://documenter.getpostman.com/view/44237160/2sBYAxNp3H) | [Repo Collection](docs/postman.json)
 - **Video Walkthrough (5-10 Mins)**: *(Provide Loom / YouTube Unlisted link here)*
 
 ---
