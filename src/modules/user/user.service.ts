@@ -280,6 +280,71 @@ const uploadProfileImageIntoDB = async (userId: string, file?: Express.Multer.Fi
   return updatedUser;
 };
 
+const getDashboardStatsFromDB = async () => {
+  const [
+    totalStudents,
+    totalTeachers,
+    totalAdmins,
+    blockedUsers,
+    totalSemesters,
+    totalCourses,
+    totalCourseOfferings,
+    totalEnrollments,
+    enrolledStudents,
+    pendingPayments,
+    revenueAgg,
+    totalResults,
+    publishedResults,
+  ] = await Promise.all([
+    prisma.user.count({ where: { role: 'STUDENT' } }),
+    prisma.user.count({ where: { role: 'TEACHER' } }),
+    prisma.user.count({ where: { role: 'ADMIN' } }),
+    prisma.user.count({ where: { status: 'BLOCKED' } }),
+    prisma.semester.count({ where: { deletedAt: null } }),
+    prisma.course.count({ where: { deletedAt: null } }),
+    prisma.courseOffering.count({ where: { deletedAt: null } }),
+    prisma.enrollment.count(),
+    prisma.enrollment.count({ where: { status: 'ENROLLED' } }),
+    prisma.enrollment.count({ where: { status: 'PENDING_PAYMENT' } }),
+    prisma.payment.aggregate({
+      where: { status: 'PAID' },
+      _sum: { amount: true },
+      _count: { id: true },
+    }),
+    prisma.result.count(),
+    prisma.result.count({ where: { published: true } }),
+  ]);
+
+  return {
+    users: {
+      total: totalStudents + totalTeachers + totalAdmins,
+      students: totalStudents,
+      teachers: totalTeachers,
+      admins: totalAdmins,
+      blocked: blockedUsers,
+    },
+    academics: {
+      semesters: totalSemesters,
+      courses: totalCourses,
+      courseOfferings: totalCourseOfferings,
+    },
+    enrollments: {
+      total: totalEnrollments,
+      enrolled: enrolledStudents,
+      pendingPayment: pendingPayments,
+    },
+    finance: {
+      totalRevenueBDT: revenueAgg._sum.amount || 0,
+      successfulTransactions: revenueAgg._count.id || 0,
+    },
+    results: {
+      total: totalResults,
+      published: publishedResults,
+      drafts: totalResults - publishedResults,
+    },
+  };
+};
+
 export const userService = {
   getAllUsersFromDB,
   getUserByIdFromDB,
@@ -288,4 +353,5 @@ export const userService = {
   updateUserRoleIntoDB,
   deleteUserFromDB,
   uploadProfileImageIntoDB,
+  getDashboardStatsFromDB,
 };

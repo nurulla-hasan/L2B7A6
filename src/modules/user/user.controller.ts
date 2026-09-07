@@ -98,6 +98,17 @@ const uploadProfileImage: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getDashboardStats: RequestHandler = catchAsync(async (_req, res) => {
+  const result = await userService.getDashboardStatsFromDB();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Dashboard statistics retrieved successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   getAllUsers,
   getUserById,
@@ -106,4 +117,5 @@ export const userController = {
   updateUserRole,
   deleteUser,
   uploadProfileImage,
+  getDashboardStats,
 };

@@ -54,6 +54,7 @@ export const globalErrorHandler: ErrorRequestHandler = (error: unknown, _req, re
     success: false,
     statusCode,
     message,
+    errors: Array.isArray(details) ? details : details ? [details] : [],
     error: {
       code,
       message,

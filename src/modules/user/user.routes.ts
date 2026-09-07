@@ -18,6 +18,9 @@ userRouter.patch(
 // Get all users (Admin & Super Admin)
 userRouter.get('/', auth('ADMIN'), userController.getAllUsers);
 
+// Get system dashboard stats (Admin & Super Admin)
+userRouter.get('/admin/dashboard-stats', auth('ADMIN'), userController.getDashboardStats);
+
 // Get user by ID (Admin & Super Admin)
 userRouter.get('/:id', auth('ADMIN'), userController.getUserById);
 

@@ -1126,6 +1126,19 @@
       "name": "9. Users",
       "item": [
         {
+          "name": "Get Dashboard Statistics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/admin/dashboard-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "admin", "dashboard-stats"]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get All Users (Admin)",
           "request": {
             "method": "GET",
