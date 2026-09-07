@@ -4,6 +4,7 @@ import { authRouter } from '../modules/auth/auth.routes';
 import { courseRouter } from '../modules/course/course.routes';
 import { courseOfferingRouter } from '../modules/course-offering/course-offering.routes';
 import { enrollmentRouter } from '../modules/enrollment/enrollment.routes';
+import { paymentRouter } from '../modules/payment/payment.routes';
 import { semesterRouter } from '../modules/semester/semester.routes';
 import { userRouter } from '../modules/user/user.routes';
 
@@ -15,4 +16,5 @@ apiRouter.use('/semesters', semesterRouter);
 apiRouter.use('/courses', courseRouter);
 apiRouter.use('/course-offerings', courseOfferingRouter);
 apiRouter.use('/enrollments', enrollmentRouter);
+apiRouter.use('/payments', paymentRouter);
 apiRouter.use('/audit-logs', auditRouter);
