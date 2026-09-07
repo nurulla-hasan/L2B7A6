@@ -13,16 +13,20 @@ import { prisma } from '../../lib/prisma';
 import { AppError } from '../../utils/app-error';
 import { createAuditLog } from '../audit/audit.service';
 import { paymentInclude } from './payment.constants';
-import type {
-  BkashCreateResponse,
-  BkashExecuteResponse,
-} from './payment.interface';
+import type { BkashCreateResponse, BkashExecuteResponse } from './payment.interface';
 import type { InitiatePaymentInput } from './payment.validation';
 
-const initiateBkashPayment = async (
-  studentId: string,
-  payload: InitiatePaymentInput,
-) => {
+const parseBkashDate = (dateStr?: string): Date => {
+  if (!dateStr) return new Date();
+  const d = new Date(dateStr);
+  if (!Number.isNaN(d.getTime())) return d;
+  const fixed = dateStr.replace(/:(\d{3})\s/, '.$1 ');
+  const d2 = new Date(fixed);
+  if (!Number.isNaN(d2.getTime())) return d2;
+  return new Date();
+};
+
+const initiateBkashPayment = async (studentId: string, payload: InitiatePaymentInput) => {
   const enrollment = await prisma.enrollment.findUnique({
     where: { id: payload.enrollmentId },
     include: {
@@ -36,10 +40,7 @@ const initiateBkashPayment = async (
   }
 
   if (enrollment.studentId !== studentId) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      'You are not authorized to pay for this enrollment',
-    );
+    throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized to pay for this enrollment');
   }
 
   if (enrollment.status === EnrollmentStatus.ENROLLED) {
@@ -133,30 +134,29 @@ const handleBkashCallback = async (query: { paymentID?: string; status?: string 
 
   if (status === 'success') {
     const bkashIdToken = await getBkashIdToken();
-    const executeRes = await fetch(
-      `${config.bkash_base_url}/tokenized/checkout/execute`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: bkashIdToken,
-          'X-App-Key': config.bkash_app_key || '',
-        },
-        body: JSON.stringify({ paymentID }),
+    const executeRes = await fetch(`${config.bkash_base_url}/tokenized/checkout/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: bkashIdToken,
+        'X-App-Key': config.bkash_app_key || '',
       },
-    );
+      body: JSON.stringify({ paymentID }),
+    });
 
     const executeResult = (await executeRes.json()) as BkashExecuteResponse;
-    if (executeResult.statusCode === '0000' && executeResult.transactionStatus === 'Completed') {
+    const isSuccess =
+      (executeResult.statusCode === '0000' && executeResult.transactionStatus === 'Completed') ||
+      Boolean(executeResult.trxID);
+
+    if (isSuccess) {
       await prisma.$transaction(async (tx) => {
         await tx.payment.update({
           where: { id: payment.id },
           data: {
             status: PaymentStatus.PAID,
-            paidAt: executeResult.paymentExecuteTime
-              ? new Date(executeResult.paymentExecuteTime)
-              : new Date(),
+            paidAt: parseBkashDate(executeResult.paymentExecuteTime),
             transactionId: executeResult.trxID || payment.transactionId,
             paymentDetails: executeResult as unknown as Prisma.InputJsonValue,
           },
@@ -193,7 +193,10 @@ const handleBkashCallback = async (query: { paymentID?: string; status?: string 
 
     await prisma.payment.update({
       where: { id: payment.id },
-      data: { status: PaymentStatus.FAILED, paymentDetails: executeResult as unknown as Prisma.InputJsonValue },
+      data: {
+        status: PaymentStatus.FAILED,
+        paymentDetails: executeResult as unknown as Prisma.InputJsonValue,
+      },
     });
 
     return {
@@ -299,4 +302,3 @@ export const paymentService = {
   getAllPaymentsFromDB,
   getPaymentByIdFromDB,
 };
-

@@ -27,4 +27,3 @@ export interface BkashCallbackQuery {
   status?: 'success' | 'failure' | 'cancel';
   format?: string;
 }
-

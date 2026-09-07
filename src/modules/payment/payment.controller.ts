@@ -7,10 +7,7 @@ import { sendResponse } from '../../utils/send-response';
 import { paymentService } from './payment.service';
 
 const initiateBkashPayment: RequestHandler = catchAsync(async (req, res) => {
-  const result = await paymentService.initiateBkashPayment(
-    req.user?.id as string,
-    req.body,
-  );
+  const result = await paymentService.initiateBkashPayment(req.user?.id as string, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -31,9 +28,7 @@ const handleBkashCallback: RequestHandler = catchAsync(async (req, res) => {
     sendResponse(res, {
       statusCode: result.success ? httpStatus.OK : httpStatus.BAD_REQUEST,
       success: result.success,
-      message: result.success
-        ? 'Payment completed successfully'
-        : 'Payment was not successful',
+      message: result.success ? 'Payment completed successfully' : 'Payment was not successful',
       data: result.data,
     });
     return;
@@ -111,4 +106,3 @@ export const paymentController = {
   getAllPayments,
   getPaymentById,
 };
-

@@ -25,4 +25,3 @@ paymentRouter.get('/', auth('ADMIN'), paymentController.getAllPayments);
 
 // Authenticated user views a payment by ID
 paymentRouter.get('/:id', auth('ADMIN', 'TEACHER', 'STUDENT'), paymentController.getPaymentById);
-

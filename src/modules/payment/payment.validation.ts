@@ -9,4 +9,3 @@ export const initiatePaymentSchema = z.object({
 });
 
 export type InitiatePaymentInput = z.infer<typeof initiatePaymentSchema>;
-

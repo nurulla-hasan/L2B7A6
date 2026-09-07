@@ -64,22 +64,19 @@ export const getBkashIdToken = async (): Promise<string> => {
     }
 
     // Grant new tokens
-    const grantResponse = await fetch(
-      `${config.bkash_base_url}/tokenized/checkout/token/grant`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          username: config.bkash_username || '',
-          password: config.bkash_password || '',
-        },
-        body: JSON.stringify({
-          app_key: config.bkash_app_key,
-          app_secret: config.bkash_app_secret,
-        }),
+    const grantResponse = await fetch(`${config.bkash_base_url}/tokenized/checkout/token/grant`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        username: config.bkash_username || '',
+        password: config.bkash_password || '',
       },
-    );
+      body: JSON.stringify({
+        app_key: config.bkash_app_key,
+        app_secret: config.bkash_app_secret,
+      }),
+    });
 
     if (!grantResponse.ok) {
       throw new AppError(httpStatus.BAD_GATEWAY, 'bKash Access Token Grant Failed');
@@ -104,4 +101,3 @@ export const getBkashIdToken = async (): Promise<string> => {
     throw new AppError(httpStatus.BAD_GATEWAY, message);
   }
 };
-
