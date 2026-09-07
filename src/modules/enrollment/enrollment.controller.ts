@@ -6,10 +6,7 @@ import { sendResponse } from '../../utils/send-response';
 import { enrollmentService } from './enrollment.service';
 
 const enrollStudent: RequestHandler = catchAsync(async (req, res) => {
-  const result = await enrollmentService.enrollStudentIntoDB(
-    req.user?.id as string,
-    req.body,
-  );
+  const result = await enrollmentService.enrollStudentIntoDB(req.user?.id as string, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -24,14 +21,11 @@ const getMyEnrollments: RequestHandler = catchAsync(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const status = req.query.status as EnrollmentStatus | undefined;
 
-  const result = await enrollmentService.getMyEnrollmentsFromDB(
-    req.user?.id as string,
-    {
-      page,
-      limit,
-      status,
-    },
-  );
+  const result = await enrollmentService.getMyEnrollmentsFromDB(req.user?.id as string, {
+    page,
+    limit,
+    status,
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -131,4 +125,3 @@ export const enrollmentController = {
   dropEnrollment,
   updateEnrollmentStatus,
 };
-

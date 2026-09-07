@@ -17,4 +17,3 @@ export const updateEnrollmentStatusSchema = z.object({
 
 export type CreateEnrollmentInput = z.infer<typeof createEnrollmentSchema>;
 export type UpdateEnrollmentStatusInput = z.infer<typeof updateEnrollmentStatusSchema>;
-

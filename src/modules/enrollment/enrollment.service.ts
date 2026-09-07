@@ -10,10 +10,7 @@ import { prisma } from '../../lib/prisma';
 import { AppError } from '../../utils/app-error';
 import { createAuditLog } from '../audit/audit.service';
 import { enrollmentInclude, studentSelect } from './enrollment.constants';
-import type {
-  CreateEnrollmentInput,
-  UpdateEnrollmentStatusInput,
-} from './enrollment.validation';
+import type { CreateEnrollmentInput, UpdateEnrollmentStatusInput } from './enrollment.validation';
 
 const enrollStudentIntoDB = async (studentId: string, payload: CreateEnrollmentInput) => {
   const student = await prisma.user.findFirst({
@@ -268,10 +265,7 @@ const getAllEnrollmentsFromDB = async (query: {
   };
 };
 
-const getEnrollmentByIdFromDB = async (
-  id: string,
-  user: { id: string; role: Role },
-) => {
+const getEnrollmentByIdFromDB = async (id: string, user: { id: string; role: Role }) => {
   const enrollment = await prisma.enrollment.findUnique({
     where: { id },
     include: {
@@ -298,10 +292,7 @@ const getEnrollmentByIdFromDB = async (
   return enrollment;
 };
 
-const updateEnrollmentStatusIntoDB = async (
-  id: string,
-  payload: UpdateEnrollmentStatusInput,
-) => {
+const updateEnrollmentStatusIntoDB = async (id: string, payload: UpdateEnrollmentStatusInput) => {
   const enrollment = await prisma.enrollment.findUnique({
     where: { id },
   });
@@ -326,4 +317,3 @@ export const enrollmentService = {
   getEnrollmentByIdFromDB,
   updateEnrollmentStatusIntoDB,
 };
-

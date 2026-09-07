@@ -2,10 +2,7 @@ import { Router } from 'express';
 import { auth } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
 import { enrollmentController } from './enrollment.controller';
-import {
-  createEnrollmentSchema,
-  updateEnrollmentStatusSchema,
-} from './enrollment.validation';
+import { createEnrollmentSchema, updateEnrollmentStatusSchema } from './enrollment.validation';
 
 export const enrollmentRouter = Router();
 
@@ -47,4 +44,3 @@ enrollmentRouter.patch(
   validate(updateEnrollmentStatusSchema),
   enrollmentController.updateEnrollmentStatus,
 );
-
