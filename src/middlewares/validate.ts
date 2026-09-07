@@ -15,9 +15,13 @@ export const validate = (schema: ZodType) =>
           path: issue.path.join('.'),
           message: issue.message,
         }));
+        const summaryMessage =
+          details.length > 0
+            ? details.map((d) => (d.path ? `${d.path}: ${d.message}` : d.message)).join(', ')
+            : 'Request validation failed';
         throw new AppError(
           httpStatus.UNPROCESSABLE_ENTITY,
-          'Request validation failed',
+          summaryMessage,
           'VALIDATION_ERROR',
           details,
         );

@@ -15,8 +15,15 @@ export const globalErrorHandler: ErrorRequestHandler = (error: unknown, _req, re
   } else if (error instanceof ZodError) {
     statusCode = 422;
     code = 'VALIDATION_ERROR';
-    message = 'Request validation failed';
-    details = error.issues.map((issue) => ({ path: issue.path.join('.'), message: issue.message }));
+    const issues = error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+    }));
+    message =
+      issues.length > 0
+        ? issues.map((d) => (d.path ? `${d.path}: ${d.message}` : d.message)).join(', ')
+        : 'Request validation failed';
+    details = issues;
   } else if (error instanceof SyntaxError && 'body' in error) {
     statusCode = 400;
     code = 'INVALID_JSON';
