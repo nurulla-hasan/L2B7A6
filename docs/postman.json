@@ -839,7 +839,141 @@
       ]
     },
     {
-      "name": "7. Users",
+      "name": "7. Payments",
+      "item": [
+        {
+          "name": "Initiate bKash Payment (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.data) {",
+                  "        if (res.data.paymentId) pm.collectionVariables.set('paymentId', res.data.paymentId);",
+                  "        if (res.data.bkashPaymentId) pm.collectionVariables.set('bkashPaymentId', res.data.bkashPaymentId);",
+                  "        if (res.data.paymentUrl) {",
+                  "            pm.collectionVariables.set('paymentUrl', res.data.paymentUrl);",
+                  "            console.log(\"bKash Payment URL:\", res.data.paymentUrl);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentId\": \"{{enrollmentId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/bkash/initiate",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "bkash", "initiate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bKash Callback (Simulate / Execute Payment)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/bkash/callback?paymentID={{bkashPaymentId}}&status=success&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "bkash", "callback"],
+              "query": [
+                {
+                  "key": "paymentID",
+                  "value": "{{bkashPaymentId}}"
+                },
+                {
+                  "key": "status",
+                  "value": "success"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Payments (Student)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/my?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "my"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Payments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. Users",
       "item": [
         {
           "name": "Get All Users (Admin)",
@@ -945,6 +1079,18 @@
     },
     {
       "key": "enrollmentId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    },
+    {
+      "key": "bkashPaymentId",
+      "value": ""
+    },
+    {
+      "key": "paymentUrl",
       "value": ""
     }
   ]
