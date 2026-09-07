@@ -52,6 +52,90 @@
           "response": []
         },
         {
+          "name": "Login (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.data && res.data.accessToken) {",
+                  "        pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "        console.log(\"Logged in as Student. Token set.\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"11111111\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Teacher)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.data && res.data.accessToken) {",
+                  "        pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "        console.log(\"Logged in as Teacher. Token set.\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"11111111\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Register User",
           "request": {
             "auth": {
@@ -604,7 +688,158 @@
       ]
     },
     {
-      "name": "6. Users",
+      "name": "6. Enrollments",
+      "item": [
+        {
+          "name": "Enroll in Course Offering (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.data && res.data.id) {",
+                  "        pm.collectionVariables.set('enrollmentId', res.data.id);",
+                  "        console.log(\"Enrollment ID saved:\", res.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseOfferingId\": \"{{courseOfferingId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Enrollments (Student)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/my?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "my"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Offering Enrollments (Teacher / Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/offering/{{courseOfferingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "offering", "{{courseOfferingId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Enrollments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Enrollment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{enrollmentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Drop Course Offering (Student)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}/drop",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{enrollmentId}}", "drop"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Enrollment Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ENROLLED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{enrollmentId}}", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Users",
       "item": [
         {
           "name": "Get All Users (Admin)",
@@ -698,7 +933,7 @@
     },
     {
       "key": "courseOfferingId",
-      "value": ""
+      "value": "d45478e1-a36b-4053-b097-64a3d850470e"
     },
     {
       "key": "teacherId",
@@ -706,6 +941,10 @@
     },
     {
       "key": "targetUserId",
+      "value": ""
+    },
+    {
+      "key": "enrollmentId",
       "value": ""
     }
   ]
