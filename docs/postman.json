@@ -471,7 +471,140 @@
       ]
     },
     {
-      "name": "5. Users",
+      "name": "5. Course Offerings",
+      "item": [
+        {
+          "name": "Create Course Offering (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.id) {",
+                  "    pm.collectionVariables.set(\"courseOfferingId\", response.data.id);",
+                  "    console.log(\"Course Offering ID saved:\", response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"semesterId\": \"{{semesterId}}\",\n  \"teacherId\": \"{{teacherId}}\",\n  \"section\": \"A\",\n  \"capacity\": 40,\n  \"fee\": 4500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/course-offerings",
+              "host": ["{{baseUrl}}"],
+              "path": ["course-offerings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Course Offerings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/course-offerings?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["course-offerings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "semesterId",
+                  "value": "{{semesterId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "courseId",
+                  "value": "{{courseId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "teacherId",
+                  "value": "{{teacherId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "section",
+                  "value": "A",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Offering By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/course-offerings/{{courseOfferingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["course-offerings", "{{courseOfferingId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course Offering (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"capacity\": 45,\n  \"fee\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/course-offerings/{{courseOfferingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["course-offerings", "{{courseOfferingId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Course Offering (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/course-offerings/{{courseOfferingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["course-offerings", "{{courseOfferingId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Users",
       "item": [
         {
           "name": "Get All Users (Admin)",
@@ -492,6 +625,43 @@
                   "value": "10"
                 }
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Role (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.id && response.data.role === 'TEACHER') {",
+                  "    pm.collectionVariables.set(\"teacherId\", response.data.id);",
+                  "    console.log(\"Teacher ID saved:\", response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"TEACHER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{targetUserId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{targetUserId}}", "role"]
             }
           },
           "response": []
@@ -524,6 +694,18 @@
     },
     {
       "key": "courseId",
+      "value": ""
+    },
+    {
+      "key": "courseOfferingId",
+      "value": ""
+    },
+    {
+      "key": "teacherId",
+      "value": ""
+    },
+    {
+      "key": "targetUserId",
       "value": ""
     }
   ]
