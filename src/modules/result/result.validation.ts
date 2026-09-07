@@ -37,4 +37,3 @@ export const publishResultSchema = z.object({
 export type SubmitResultInput = z.infer<typeof submitResultSchema>;
 export type UpdateResultInput = z.infer<typeof updateResultSchema>;
 export type PublishResultInput = z.infer<typeof publishResultSchema>;
-
