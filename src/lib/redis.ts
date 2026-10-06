@@ -1,7 +1,17 @@
 import { createClient } from 'redis';
 import config from '../config/index';
 
-export const redisClient = createClient({ url: config.redis_url || 'redis://localhost:6379' });
+export const redisClient = createClient({
+  url: config.redis_url || 'redis://localhost:6379',
+  socket: {
+    connectTimeout: 3000,
+    reconnectStrategy: (retries) => {
+      // Allow fallback to in-memory cache instead of hanging on invalid remote host
+      if (retries >= 1) return false;
+      return 300;
+    },
+  },
+});
 
 let isRedisReady = false;
 
