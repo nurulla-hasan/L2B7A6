@@ -8,6 +8,7 @@ import { isGoogleAuthConfigured, passport } from '../../config/passport';
 
 import { AppError } from '../../utils/app-error';
 import { catchAsync } from '../../utils/catch-async';
+import { clearAuthCookies, setAuthCookies } from '../../utils/cookie';
 import { sendResponse } from '../../utils/send-response';
 
 import { authService } from './auth.service';
@@ -42,11 +43,16 @@ const loginUser = catchAsync(async (req, res) => {
 
   const result = authService.loginUserIntoDB(req.user as unknown as User);
 
+  setAuthCookies(res, result.accessToken, result.refreshToken);
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Login successful',
-    data: result,
+    data: {
+      user: req.user,
+      accessToken: result.accessToken,
+    },
   });
 });
 
@@ -64,6 +70,8 @@ const registerUser = catchAsync(async (req, res) => {
 const verifyEmail = catchAsync(async (req, res) => {
   const { email, otp } = req.body;
   const result = await authService.verifyEmailAndCreateUserIntoDB(email, otp);
+
+  setAuthCookies(res, result.accessToken, result.refreshToken);
 
   sendResponse(res, {
     success: true,
@@ -94,11 +102,15 @@ const refreshAuthTokens = catchAsync(async (req, res) => {
 
   const result = await authService.refreshAuthTokensFromDB(refreshToken);
 
+  setAuthCookies(res, result.accessToken, result.refreshToken);
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Tokens refreshed successfully',
-    data: result,
+    data: {
+      accessToken: result.accessToken,
+    },
   });
 });
 
@@ -148,10 +160,9 @@ const googleLoginCallback: RequestHandler = (req, res) => {
 
   const result = authService.loginUserIntoDB(req.user as unknown as User);
 
-  const redirectUrl = new URL('/auth/success', config.frontend_url || 'http://localhost:3000');
-  redirectUrl.searchParams.set('accessToken', result.accessToken);
-  redirectUrl.searchParams.set('refreshToken', result.refreshToken);
+  setAuthCookies(res, result.accessToken, result.refreshToken);
 
+  const redirectUrl = new URL('/auth/success', config.frontend_url || 'http://localhost:3000');
   res.redirect(redirectUrl.toString());
 };
 
@@ -167,6 +178,8 @@ const getMe = catchAsync(async (req, res) => {
 });
 
 const logoutUser: RequestHandler = (_req, res) => {
+  clearAuthCookies(res);
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
