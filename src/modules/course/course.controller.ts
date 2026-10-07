@@ -6,10 +6,20 @@ import { sendResponse } from '../../utils/send-response';
 import { courseService } from './course.service';
 import { createCourseValidationSchema, updateCourseValidationSchema } from './course.validation';
 
+const parseRequestBody = (body: Record<string, unknown>) => {
+  if (!body.data) return body;
+  if (typeof body.data !== 'string') return body.data;
+  try {
+    return JSON.parse(body.data);
+  } catch {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid JSON format in data payload');
+  }
+};
+
 const createCourse = catchAsync(async (req: Request, res: Response) => {
   const files = (req.files as Express.Multer.File[]) || [];
 
-  const rawData = req.body.data ? JSON.parse(req.body.data) : req.body;
+  const rawData = parseRequestBody(req.body);
   const zodValidationResult = createCourseValidationSchema.safeParse(rawData);
 
   if (!zodValidationResult.success) {
@@ -35,8 +45,16 @@ const getAllCourses = catchAsync(async (req: Request, res: Response) => {
   const page = req.query.page ? Number(req.query.page) : 1;
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const searchTerm = req.query.searchTerm as string | undefined;
+  const credits = req.query.credits ? Number(req.query.credits) : undefined;
+  const sortBy = req.query.sortBy as string | undefined;
 
-  const result = await courseService.getAllCoursesFromDB({ page, limit, searchTerm });
+  const result = await courseService.getAllCoursesFromDB({
+    page,
+    limit,
+    searchTerm,
+    credits,
+    sortBy,
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -61,7 +79,7 @@ const getCourseById = catchAsync(async (req: Request, res: Response) => {
 const updateCourse = catchAsync(async (req: Request, res: Response) => {
   const files = (req.files as Express.Multer.File[]) || [];
 
-  const rawData = req.body.data ? JSON.parse(req.body.data) : req.body;
+  const rawData = parseRequestBody(req.body);
   const zodValidationResult = updateCourseValidationSchema.safeParse(rawData);
 
   if (!zodValidationResult.success) {

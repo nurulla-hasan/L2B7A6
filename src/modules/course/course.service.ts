@@ -78,9 +78,11 @@ const getAllCoursesFromDB = async (query: {
   page?: number;
   limit?: number;
   searchTerm?: string;
+  credits?: number;
+  sortBy?: string;
 }) => {
-  const pageNum = Math.max(1, query.page || 1);
-  const limitNum = Math.max(1, query.limit || 10);
+  const pageNum = Math.max(1, Number(query.page) || 1);
+  const limitNum = Math.max(1, Number(query.limit) || 10);
   const skip = (pageNum - 1) * limitNum;
 
   const andConditions: Prisma.CourseWhereInput[] = [{ deletedAt: null }];
@@ -95,7 +97,27 @@ const getAllCoursesFromDB = async (query: {
     });
   }
 
+  if (query.credits !== undefined) {
+    const creditsNum = Number(query.credits);
+    if (!Number.isNaN(creditsNum)) {
+      andConditions.push({ credits: creditsNum });
+    }
+  }
+
   const whereCondition: Prisma.CourseWhereInput = { AND: andConditions };
+
+  const orderByMap: Record<string, Prisma.CourseOrderByWithRelationInput> = {
+    newest: { createdAt: 'desc' },
+    oldest: { createdAt: 'asc' },
+    credits_asc: { credits: 'asc' },
+    credits_desc: { credits: 'desc' },
+    title_asc: { title: 'asc' },
+    title_desc: { title: 'desc' },
+    code_asc: { code: 'asc' },
+    code_desc: { code: 'desc' },
+  };
+
+  const orderBy = orderByMap[query.sortBy || 'newest'] || { createdAt: 'desc' };
 
   const [total, courses] = await Promise.all([
     prisma.course.count({ where: whereCondition }),
@@ -103,7 +125,7 @@ const getAllCoursesFromDB = async (query: {
       where: whereCondition,
       skip,
       take: limitNum,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     }),
   ]);
 
