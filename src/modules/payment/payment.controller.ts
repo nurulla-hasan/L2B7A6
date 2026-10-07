@@ -68,12 +68,18 @@ const getAllPayments: RequestHandler = catchAsync(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const status = req.query.status as PaymentStatus | undefined;
   const gateway = req.query.gateway as PaymentGateway | undefined;
+  const semesterId = req.query.semesterId as string | undefined;
+  const searchTerm = req.query.searchTerm as string | undefined;
+  const sortBy = req.query.sortBy as string | undefined;
 
   const result = await paymentService.getAllPaymentsFromDB({
     page,
     limit,
     status,
     gateway,
+    semesterId,
+    searchTerm,
+    sortBy,
   });
 
   sendResponse(res, {

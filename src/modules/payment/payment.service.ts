@@ -251,15 +251,71 @@ const getAllPaymentsFromDB = async (query: {
   limit?: number;
   status?: PaymentStatus;
   gateway?: PaymentGateway;
+  semesterId?: string;
+  searchTerm?: string;
+  sortBy?: string;
 }) => {
   const pageNum = Math.max(1, query.page || 1);
   const limitNum = Math.max(1, query.limit || 10);
   const skip = (pageNum - 1) * limitNum;
 
-  const whereCondition: Prisma.PaymentWhereInput = {
-    ...(query.status ? { status: query.status } : {}),
-    ...(query.gateway ? { gateway: query.gateway } : {}),
+  const andConditions: Prisma.PaymentWhereInput[] = [];
+
+  if (query.status) {
+    andConditions.push({ status: query.status });
+  }
+
+  if (query.gateway) {
+    andConditions.push({ gateway: query.gateway });
+  }
+
+  if (query.semesterId) {
+    andConditions.push({
+      enrollment: {
+        courseOffering: {
+          semesterId: query.semesterId,
+        },
+      },
+    });
+  }
+
+  if (query.searchTerm?.trim()) {
+    const term = query.searchTerm.trim();
+    andConditions.push({
+      OR: [
+        { transactionId: { contains: term, mode: 'insensitive' } },
+        { bkashPaymentId: { contains: term, mode: 'insensitive' } },
+        { enrollment: { student: { name: { contains: term, mode: 'insensitive' } } } },
+        { enrollment: { student: { email: { contains: term, mode: 'insensitive' } } } },
+        {
+          enrollment: {
+            courseOffering: {
+              course: { title: { contains: term, mode: 'insensitive' } },
+            },
+          },
+        },
+        {
+          enrollment: {
+            courseOffering: {
+              course: { code: { contains: term, mode: 'insensitive' } },
+            },
+          },
+        },
+      ],
+    });
+  }
+
+  const whereCondition: Prisma.PaymentWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const orderByMap: Record<string, Prisma.PaymentOrderByWithRelationInput> = {
+    newest: { createdAt: 'desc' },
+    oldest: { createdAt: 'asc' },
+    amount_desc: { amount: 'desc' },
+    amount_asc: { amount: 'asc' },
   };
+
+  const orderBy = (query.sortBy && orderByMap[query.sortBy]) || { createdAt: 'desc' };
 
   const [total, payments] = await Promise.all([
     prisma.payment.count({ where: whereCondition }),
@@ -268,7 +324,7 @@ const getAllPaymentsFromDB = async (query: {
       include: paymentInclude,
       skip,
       take: limitNum,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     }),
   ]);
 

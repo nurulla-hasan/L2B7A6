@@ -6,6 +6,15 @@ export const paymentInclude = {
           id: true,
           name: true,
           email: true,
+          imageUrl: true,
+          phone: true,
+          studentProfile: {
+            select: {
+              studentId: true,
+              department: true,
+              batch: true,
+            },
+          },
         },
       },
       courseOffering: {
