@@ -47,8 +47,8 @@ const createSemesterIntoDB = async (payload: CreateSemesterInput, adminId?: stri
 
 const getAllSemestersFromDB = async (query: GetSemestersQueryInput) => {
   const { page, limit, searchTerm, year, sortBy } = query;
-  const pageNum = Math.max(1, page || 1);
-  const limitNum = Math.max(1, limit || 10);
+  const pageNum = Math.max(1, Number(page) || 1);
+  const limitNum = Math.max(1, Number(limit) || 10);
   const skip = (pageNum - 1) * limitNum;
 
   const andConditions: Prisma.SemesterWhereInput[] = [{ deletedAt: null }];
@@ -60,7 +60,10 @@ const getAllSemestersFromDB = async (query: GetSemestersQueryInput) => {
   }
 
   if (year) {
-    andConditions.push({ year });
+    const yearNumber = Number(year);
+    if (!Number.isNaN(yearNumber)) {
+      andConditions.push({ year: yearNumber });
+    }
   }
 
   const whereCondition: Prisma.SemesterWhereInput = { AND: andConditions };

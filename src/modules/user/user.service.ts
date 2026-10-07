@@ -19,8 +19,8 @@ import type {
 
 const getAllUsersFromDB = async (query: GetUsersQueryInput, currentUserId?: string) => {
   const { page, limit, searchTerm, role, status, sortBy } = query;
-  const pageNum = Math.max(1, page || 1);
-  const limitNum = Math.max(1, limit || 10);
+  const pageNum = Math.max(1, Number(page) || 1);
+  const limitNum = Math.max(1, Number(limit) || 10);
   const skip = (pageNum - 1) * limitNum;
 
   const andConditions: Prisma.UserWhereInput[] = [];

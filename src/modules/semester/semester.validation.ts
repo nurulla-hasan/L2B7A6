@@ -9,7 +9,7 @@ export const createSemesterSchema = z
         error: 'Semester name is required',
       })
       .min(2, 'Semester name must be at least 2 characters'),
-    year: z
+    year: z.coerce
       .number({
         error: 'Year must be a number',
       })
@@ -39,7 +39,7 @@ export const createSemesterSchema = z
 export const updateSemesterSchema = z
   .object({
     name: z.string().min(2).optional(),
-    year: z.number().int().min(2020).max(2099).optional(),
+    year: z.coerce.number().int().min(2020).max(2099).optional(),
     startDate: z
       .string()
       .refine(isValidDate, {
