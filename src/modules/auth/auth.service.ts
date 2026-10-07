@@ -325,6 +325,21 @@ const resetPasswordIntoDB = async (payload: ResetPasswordInput) => {
   return { message: 'Password reset successful. You can now login with your new password.' };
 };
 
+const verifyResetOtpIntoDB = async (email: string, otp: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, email: true, status: true },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  await otpService.verifyPasswordResetOtp(email, otp);
+
+  return { message: 'Reset code verified successfully' };
+};
+
 export const authService = {
   loginUserIntoDB,
   registerUserIntoDB,
@@ -336,5 +351,6 @@ export const authService = {
   changePasswordIntoDB,
   forgotPasswordIntoDB,
   resendPasswordResetOtpIntoDB,
+  verifyResetOtpIntoDB,
   resetPasswordIntoDB,
 };

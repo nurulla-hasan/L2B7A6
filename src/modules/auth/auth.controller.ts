@@ -234,6 +234,18 @@ const resendResetOtp = catchAsync(async (req, res) => {
   });
 });
 
+const verifyResetOtp = catchAsync(async (req, res) => {
+  const { email, otp } = req.body;
+  const result = await authService.verifyResetOtpIntoDB(email, otp);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: result.message,
+    data: null,
+  });
+});
+
 const resetPassword = catchAsync(async (req, res) => {
   const result = await authService.resetPasswordIntoDB(req.body);
 
@@ -260,6 +272,7 @@ export const authController = {
   changePassword,
   forgotPassword,
   resendResetOtp,
+  verifyResetOtp,
   resetPassword,
   logoutUser,
 };

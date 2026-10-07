@@ -15,6 +15,7 @@ import {
   resetPasswordSchema,
   updateMeSchema,
   verifyEmailSchema,
+  verifyResetOtpSchema,
 } from './auth.validation';
 
 export const authRouter = Router();
@@ -28,6 +29,8 @@ authRouter.post('/resend-otp', validate(resendOtpSchema), authController.resendV
 authRouter.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword);
 
 authRouter.post('/resend-reset-otp', validate(resendResetOtpSchema), authController.resendResetOtp);
+
+authRouter.post('/verify-reset-otp', validate(verifyResetOtpSchema), authController.verifyResetOtp);
 
 authRouter.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
 

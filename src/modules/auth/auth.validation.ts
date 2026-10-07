@@ -9,12 +9,12 @@ export const registerSchema = z.object({
 });
 
 export const verifyEmailSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
   otp: z.string().length(6, 'Verification code must be 6 digits'),
 });
 
 export const resendOtpSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
 });
 
 export const loginSchema = z.object({
@@ -27,15 +27,15 @@ export const refreshSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
 });
 
 export const resendResetOtpSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
 });
 
 export const resetPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
   otp: z.string().length(6, 'Reset code must be 6 digits'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
@@ -51,8 +51,14 @@ export const changePasswordSchema = z.object({
   newPassword: z.string().min(6, 'New password must be at least 6 characters'),
 });
 
+export const verifyResetOtpSchema = z.object({
+  email: z.email('Invalid email address'),
+  otp: z.string().length(6, 'Reset code must be 6 digits'),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type VerifyResetOtpInput = z.infer<typeof verifyResetOtpSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateMeInput = z.infer<typeof updateMeSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
