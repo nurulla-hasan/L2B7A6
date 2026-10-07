@@ -98,9 +98,11 @@ const getAllCourseOfferingsFromDB = async (query: {
   courseId?: string;
   teacherId?: string;
   section?: string;
+  searchTerm?: string;
+  sortBy?: string;
 }) => {
-  const pageNum = Math.max(1, query.page || 1);
-  const limitNum = Math.max(1, query.limit || 10);
+  const pageNum = Math.max(1, Number(query.page) || 1);
+  const limitNum = Math.max(1, Number(query.limit) || 10);
   const skip = (pageNum - 1) * limitNum;
 
   const andConditions: Prisma.CourseOfferingWhereInput[] = [{ deletedAt: null }];
@@ -121,7 +123,30 @@ const getAllCourseOfferingsFromDB = async (query: {
     andConditions.push({ section: { equals: query.section.trim(), mode: 'insensitive' } });
   }
 
+  if (query.searchTerm?.trim()) {
+    const term = query.searchTerm.trim();
+    andConditions.push({
+      OR: [
+        { course: { title: { contains: term, mode: 'insensitive' } } },
+        { course: { code: { contains: term, mode: 'insensitive' } } },
+        { teacher: { name: { contains: term, mode: 'insensitive' } } },
+        { section: { contains: term, mode: 'insensitive' } },
+      ],
+    });
+  }
+
   const whereCondition: Prisma.CourseOfferingWhereInput = { AND: andConditions };
+
+  const orderByMap: Record<string, Prisma.CourseOfferingOrderByWithRelationInput> = {
+    newest: { createdAt: 'desc' },
+    oldest: { createdAt: 'asc' },
+    fee_asc: { fee: 'asc' },
+    fee_desc: { fee: 'desc' },
+    capacity_asc: { capacity: 'asc' },
+    capacity_desc: { capacity: 'desc' },
+  };
+
+  const orderBy = orderByMap[query.sortBy || 'newest'] || { createdAt: 'desc' };
 
   const [total, offerings] = await Promise.all([
     prisma.courseOffering.count({ where: whereCondition }),
@@ -141,7 +166,7 @@ const getAllCourseOfferingsFromDB = async (query: {
       },
       skip,
       take: limitNum,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     }),
   ]);
 
