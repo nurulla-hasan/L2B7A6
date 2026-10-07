@@ -229,16 +229,58 @@ const getAllEnrollmentsFromDB = async (query: {
   status?: EnrollmentStatus;
   studentId?: string;
   courseOfferingId?: string;
+  semesterId?: string;
+  searchTerm?: string;
+  sortBy?: string;
 }) => {
   const pageNum = Math.max(1, query.page || 1);
   const limitNum = Math.max(1, query.limit || 10);
   const skip = (pageNum - 1) * limitNum;
 
-  const whereCondition: Prisma.EnrollmentWhereInput = {
-    ...(query.status ? { status: query.status } : {}),
-    ...(query.studentId ? { studentId: query.studentId } : {}),
-    ...(query.courseOfferingId ? { courseOfferingId: query.courseOfferingId } : {}),
+  const andConditions: Prisma.EnrollmentWhereInput[] = [];
+
+  if (query.status) {
+    andConditions.push({ status: query.status });
+  }
+
+  if (query.studentId) {
+    andConditions.push({ studentId: query.studentId });
+  }
+
+  if (query.courseOfferingId) {
+    andConditions.push({ courseOfferingId: query.courseOfferingId });
+  }
+
+  if (query.semesterId) {
+    andConditions.push({
+      courseOffering: { semesterId: query.semesterId },
+    });
+  }
+
+  if (query.searchTerm?.trim()) {
+    const term = query.searchTerm.trim();
+    andConditions.push({
+      OR: [
+        { student: { name: { contains: term, mode: 'insensitive' } } },
+        { student: { email: { contains: term, mode: 'insensitive' } } },
+        { courseOffering: { course: { title: { contains: term, mode: 'insensitive' } } } },
+        { courseOffering: { course: { code: { contains: term, mode: 'insensitive' } } } },
+        { courseOffering: { section: { contains: term, mode: 'insensitive' } } },
+      ],
+    });
+  }
+
+  const whereCondition: Prisma.EnrollmentWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const orderByMap: Record<string, Prisma.EnrollmentOrderByWithRelationInput> = {
+    newest: { createdAt: 'desc' },
+    oldest: { createdAt: 'asc' },
+    status_asc: { status: 'asc' },
+    status_desc: { status: 'desc' },
   };
+
+  const orderBy = (query.sortBy && orderByMap[query.sortBy]) || { createdAt: 'desc' };
 
   const [total, enrollments] = await Promise.all([
     prisma.enrollment.count({ where: whereCondition }),
@@ -250,7 +292,7 @@ const getAllEnrollmentsFromDB = async (query: {
       },
       skip,
       take: limitNum,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     }),
   ]);
 
