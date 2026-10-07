@@ -26,13 +26,18 @@ export const updateResultSchema = z.object({
   published: z.boolean().optional(),
 });
 
-export const publishResultSchema = z.object({
-  resultIds: z
-    .array(z.string().uuid('Each result ID must be a valid UUID'), {
-      error: 'Result IDs array is required',
-    })
-    .min(1, 'At least one result ID must be provided'),
-});
+export const publishResultSchema = z
+  .object({
+    resultIds: z.array(z.string().uuid('Each result ID must be a valid UUID')).optional(),
+    publishAll: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      (data.resultIds !== undefined && data.resultIds.length > 0) || data.publishAll === true,
+    {
+      message: 'Either provide resultIds or set publishAll to true',
+    },
+  );
 
 export type SubmitResultInput = z.infer<typeof submitResultSchema>;
 export type UpdateResultInput = z.infer<typeof updateResultSchema>;

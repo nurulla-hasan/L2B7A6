@@ -74,11 +74,13 @@ const getAllResults: RequestHandler = catchAsync(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : 1;
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const published = req.query.published !== undefined ? req.query.published === 'true' : undefined;
+  const searchTerm = req.query.searchTerm as string | undefined;
 
   const result = await resultService.getAllResultsFromDB({
     page,
     limit,
     published,
+    searchTerm,
   });
 
   sendResponse(res, {

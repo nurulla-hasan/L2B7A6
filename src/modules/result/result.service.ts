@@ -134,14 +134,28 @@ const publishResultsIntoDB = async (
   payload: PublishResultInput,
   user: { id: string; role: Role },
 ) => {
-  const whereCondition: Prisma.ResultWhereInput = {
-    id: { in: payload.resultIds },
-    ...(user.role === Role.TEACHER ? { teacherId: user.id } : {}),
-  };
+  let whereCondition: Prisma.ResultWhereInput;
+
+  if (payload.publishAll) {
+    whereCondition = {
+      published: false,
+      ...(user.role === Role.TEACHER ? { teacherId: user.id } : {}),
+    };
+  } else if (payload.resultIds && payload.resultIds.length > 0) {
+    whereCondition = {
+      id: { in: payload.resultIds },
+      ...(user.role === Role.TEACHER ? { teacherId: user.id } : {}),
+    };
+  } else {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Either provide resultIds or set publishAll to true',
+    );
+  }
 
   const results = await prisma.result.findMany({ where: whereCondition });
   if (results.length === 0) {
-    throw new AppError(httpStatus.NOT_FOUND, 'No matching results found to publish');
+    throw new AppError(httpStatus.NOT_FOUND, 'No matching draft results found to publish');
   }
 
   await prisma.result.updateMany({
@@ -197,17 +211,45 @@ const getAllResultsFromDB = async (query: {
   page?: number;
   limit?: number;
   published?: boolean;
+  searchTerm?: string;
 }) => {
   const pageNum = Math.max(1, query.page || 1);
   const limitNum = Math.max(1, query.limit || 10);
   const skip = (pageNum - 1) * limitNum;
 
-  const whereCondition: Prisma.ResultWhereInput = {
-    ...(query.published !== undefined ? { published: query.published } : {}),
-  };
+  const andConditions: Prisma.ResultWhereInput[] = [];
 
-  const [total, results] = await Promise.all([
+  if (query.published !== undefined) {
+    andConditions.push({ published: query.published });
+  }
+
+  if (query.searchTerm?.trim()) {
+    const term = query.searchTerm.trim();
+    andConditions.push({
+      OR: [
+        { enrollment: { student: { name: { contains: term, mode: 'insensitive' } } } },
+        { enrollment: { student: { email: { contains: term, mode: 'insensitive' } } } },
+        {
+          enrollment: {
+            courseOffering: { course: { title: { contains: term, mode: 'insensitive' } } },
+          },
+        },
+        {
+          enrollment: {
+            courseOffering: { course: { code: { contains: term, mode: 'insensitive' } } },
+          },
+        },
+        { teacher: { name: { contains: term, mode: 'insensitive' } } },
+      ],
+    });
+  }
+
+  const whereCondition: Prisma.ResultWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const [total, draftCount, results] = await Promise.all([
     prisma.result.count({ where: whereCondition }),
+    prisma.result.count({ where: { published: false } }),
     prisma.result.findMany({
       where: whereCondition,
       include: resultInclude,
@@ -223,6 +265,7 @@ const getAllResultsFromDB = async (query: {
       limit: limitNum,
       total,
       totalPages: Math.ceil(total / limitNum),
+      draftCount,
     },
     data: results,
   };
