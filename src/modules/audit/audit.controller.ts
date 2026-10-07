@@ -10,8 +10,15 @@ const getAllAuditLogs: RequestHandler = catchAsync(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const action = req.query.action as AuditAction | undefined;
   const resource = req.query.resource as string | undefined;
+  const searchTerm = req.query.searchTerm as string | undefined;
 
-  const result = await auditService.getAllAuditLogsFromDB({ page, limit, action, resource });
+  const result = await auditService.getAllAuditLogsFromDB({
+    page,
+    limit,
+    action,
+    resource,
+    searchTerm,
+  });
 
   sendResponse(res, {
     success: true,

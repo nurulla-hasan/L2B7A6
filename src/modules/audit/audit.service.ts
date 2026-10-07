@@ -27,6 +27,7 @@ const getAllAuditLogsFromDB = async (query: {
   limit?: number;
   action?: AuditAction;
   resource?: string;
+  searchTerm?: string;
 }) => {
   const pageNum = Math.max(1, query.page || 1);
   const limitNum = Math.max(1, query.limit || 10);
@@ -40,6 +41,18 @@ const getAllAuditLogsFromDB = async (query: {
 
   if (query.resource?.trim()) {
     andConditions.push({ resource: { contains: query.resource.trim(), mode: 'insensitive' } });
+  }
+
+  if (query.searchTerm?.trim()) {
+    const term = query.searchTerm.trim();
+    andConditions.push({
+      OR: [
+        { resource: { contains: term, mode: 'insensitive' } },
+        { resourceId: { contains: term, mode: 'insensitive' } },
+        { user: { name: { contains: term, mode: 'insensitive' } } },
+        { user: { email: { contains: term, mode: 'insensitive' } } },
+      ],
+    });
   }
 
   const whereCondition: Prisma.AuditLogWhereInput =
