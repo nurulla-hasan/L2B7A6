@@ -24,8 +24,8 @@ enrollmentRouter.get(
   enrollmentController.getOfferingEnrollments,
 );
 
-// Admin views all enrollments (with filters & pagination)
-enrollmentRouter.get('/', auth('ADMIN'), enrollmentController.getAllEnrollments);
+// Admin or Teacher views all enrollments (with filters & pagination)
+enrollmentRouter.get('/', auth('ADMIN', 'TEACHER'), enrollmentController.getAllEnrollments);
 
 // Authenticated user views a single enrollment by ID
 enrollmentRouter.get(

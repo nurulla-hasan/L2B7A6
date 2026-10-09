@@ -60,16 +60,19 @@ const getAllEnrollments: RequestHandler = catchAsync(async (req, res) => {
   const searchTerm = req.query.searchTerm as string | undefined;
   const sortBy = req.query.sortBy as string | undefined;
 
-  const result = await enrollmentService.getAllEnrollmentsFromDB({
-    page,
-    limit,
-    status,
-    studentId,
-    courseOfferingId,
-    semesterId,
-    searchTerm,
-    sortBy,
-  });
+  const result = await enrollmentService.getAllEnrollmentsFromDB(
+    {
+      page,
+      limit,
+      status,
+      studentId,
+      courseOfferingId,
+      semesterId,
+      searchTerm,
+      sortBy,
+    },
+    req.user as { id: string; role: Role },
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

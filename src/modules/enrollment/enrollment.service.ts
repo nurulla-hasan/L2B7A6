@@ -223,21 +223,29 @@ const getOfferingEnrollmentsFromDB = async (
   });
 };
 
-const getAllEnrollmentsFromDB = async (query: {
-  page?: number;
-  limit?: number;
-  status?: EnrollmentStatus;
-  studentId?: string;
-  courseOfferingId?: string;
-  semesterId?: string;
-  searchTerm?: string;
-  sortBy?: string;
-}) => {
+const getAllEnrollmentsFromDB = async (
+  query: {
+    page?: number;
+    limit?: number;
+    status?: EnrollmentStatus;
+    studentId?: string;
+    courseOfferingId?: string;
+    semesterId?: string;
+    searchTerm?: string;
+    sortBy?: string;
+  },
+  user?: { id: string; role: Role },
+) => {
   const pageNum = Math.max(1, query.page || 1);
   const limitNum = Math.max(1, query.limit || 10);
   const skip = (pageNum - 1) * limitNum;
 
   const andConditions: Prisma.EnrollmentWhereInput[] = [];
+
+  // Teacher role isolation
+  if (user?.role === Role.TEACHER) {
+    andConditions.push({ courseOffering: { teacherId: user.id } });
+  }
 
   if (query.status) {
     andConditions.push({ status: query.status });
@@ -263,6 +271,7 @@ const getAllEnrollmentsFromDB = async (query: {
       OR: [
         { student: { name: { contains: term, mode: 'insensitive' } } },
         { student: { email: { contains: term, mode: 'insensitive' } } },
+        { student: { studentProfile: { studentId: { contains: term, mode: 'insensitive' } } } },
         { courseOffering: { course: { title: { contains: term, mode: 'insensitive' } } } },
         { courseOffering: { course: { code: { contains: term, mode: 'insensitive' } } } },
         { courseOffering: { section: { contains: term, mode: 'insensitive' } } },
