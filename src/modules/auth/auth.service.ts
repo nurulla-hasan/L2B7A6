@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import httpStatus from 'http-status';
 import type { JwtPayload } from 'jsonwebtoken';
-import { AuthProvider, type User } from '../../../generated/prisma/client';
+import { AuthProvider, Role, type User } from '../../../generated/prisma/client';
 
 import config from '../../config/index';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../lib/email';
@@ -217,9 +217,31 @@ const getMeFromDB = async (userId: string) => {
 };
 
 const updateMeIntoDB = async (userId: string, payload: UpdateMeInput) => {
+  const { bio, ...userData } = payload;
+
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (!existingUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
   const user = await prisma.user.update({
     where: { id: userId },
-    data: payload,
+    data: {
+      ...userData,
+      ...(bio !== undefined &&
+        existingUser.role === Role.TEACHER && {
+          teacherProfile: {
+            upsert: {
+              create: { bio },
+              update: { bio },
+            },
+          },
+        }),
+    },
     include: {
       teacherProfile: true,
       studentProfile: true,

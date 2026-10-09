@@ -44,6 +44,7 @@ export const updateMeSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   phone: z.string().optional(),
   imageUrl: z.string().url().optional().or(z.literal('')),
+  bio: z.string().max(1000).optional(),
 });
 
 export const changePasswordSchema = z.object({
