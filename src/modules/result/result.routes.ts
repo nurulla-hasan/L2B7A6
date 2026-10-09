@@ -28,8 +28,8 @@ resultRouter.post(
   resultController.submitResult,
 );
 
-// Admin views all results
-resultRouter.get('/', auth('ADMIN'), resultController.getAllResults);
+// Admin or Teacher views results
+resultRouter.get('/', auth('ADMIN', 'TEACHER'), resultController.getAllResults);
 
 // Authenticated user views a single result by ID
 resultRouter.get('/:id', auth('ADMIN', 'TEACHER', 'STUDENT'), resultController.getResultById);

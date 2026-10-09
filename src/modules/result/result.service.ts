@@ -207,17 +207,37 @@ const getOfferingResultsFromDB = async (offeringId: string, user: { id: string; 
   });
 };
 
-const getAllResultsFromDB = async (query: {
-  page?: number;
-  limit?: number;
-  published?: boolean;
-  searchTerm?: string;
-}) => {
+const getAllResultsFromDB = async (
+  query: {
+    page?: number;
+    limit?: number;
+    published?: boolean;
+    searchTerm?: string;
+    courseOfferingId?: string;
+    semesterId?: string;
+  },
+  user?: { id: string; role: Role },
+) => {
   const pageNum = Math.max(1, query.page || 1);
   const limitNum = Math.max(1, query.limit || 10);
   const skip = (pageNum - 1) * limitNum;
 
   const andConditions: Prisma.ResultWhereInput[] = [];
+
+  // Teacher role isolation
+  if (user?.role === Role.TEACHER) {
+    andConditions.push({ teacherId: user.id });
+  }
+
+  if (query.courseOfferingId) {
+    andConditions.push({ enrollment: { courseOfferingId: query.courseOfferingId } });
+  }
+
+  if (query.semesterId) {
+    andConditions.push({
+      enrollment: { courseOffering: { semesterId: query.semesterId } },
+    });
+  }
 
   if (query.published !== undefined) {
     andConditions.push({ published: query.published });
@@ -247,9 +267,15 @@ const getAllResultsFromDB = async (query: {
   const whereCondition: Prisma.ResultWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
+  const draftWhereCondition: Prisma.ResultWhereInput = {
+    published: false,
+    ...(user?.role === Role.TEACHER ? { teacherId: user.id } : {}),
+    ...(query.courseOfferingId ? { enrollment: { courseOfferingId: query.courseOfferingId } } : {}),
+  };
+
   const [total, draftCount, results] = await Promise.all([
     prisma.result.count({ where: whereCondition }),
-    prisma.result.count({ where: { published: false } }),
+    prisma.result.count({ where: draftWhereCondition }),
     prisma.result.findMany({
       where: whereCondition,
       include: resultInclude,

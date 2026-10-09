@@ -75,13 +75,20 @@ const getAllResults: RequestHandler = catchAsync(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const published = req.query.published !== undefined ? req.query.published === 'true' : undefined;
   const searchTerm = req.query.searchTerm as string | undefined;
+  const courseOfferingId = req.query.courseOfferingId as string | undefined;
+  const semesterId = req.query.semesterId as string | undefined;
 
-  const result = await resultService.getAllResultsFromDB({
-    page,
-    limit,
-    published,
-    searchTerm,
-  });
+  const result = await resultService.getAllResultsFromDB(
+    {
+      page,
+      limit,
+      published,
+      searchTerm,
+      courseOfferingId,
+      semesterId,
+    },
+    req.user as { id: string; role: Role },
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
