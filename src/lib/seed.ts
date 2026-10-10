@@ -137,6 +137,44 @@ export const seed = async (): Promise<void> => {
       `[Seed] Course already exists: ${existingCourse.title} [${existingCourse.code}] (${existingCourse.id})`,
     );
   }
+
+  // 6. Seed Course Offering
+  const teacher = await prisma.user.findUnique({ where: { email: teacherEmail } });
+  const semester = await prisma.semester.findFirst({
+    where: { name: 'Fall', year: 2026, deletedAt: null },
+  });
+  const course = await prisma.course.findFirst({
+    where: { code: courseCode, deletedAt: null },
+  });
+
+  if (teacher && semester && course) {
+    const existingOffering = await prisma.courseOffering.findFirst({
+      where: {
+        courseId: course.id,
+        semesterId: semester.id,
+        section: '1',
+        deletedAt: null,
+      },
+    });
+
+    if (!existingOffering) {
+      const offering = await prisma.courseOffering.create({
+        data: {
+          courseId: course.id,
+          semesterId: semester.id,
+          teacherId: teacher.id,
+          section: '1',
+          capacity: 40,
+          fee: 15000,
+        },
+      });
+      console.log(
+        `[Seed] Course Offering created successfully: ${course.code} Section 1 (${offering.id})`,
+      );
+    } else {
+      console.log(`[Seed] Course Offering already exists: ${course.code} Section 1`);
+    }
+  }
 };
 
 export const seedAdmin = seed;

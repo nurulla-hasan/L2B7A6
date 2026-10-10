@@ -21,9 +21,7 @@ const getAllCourseOfferings: RequestHandler = catchAsync(async (req, res) => {
   const semesterId = req.query.semesterId as string | undefined;
   const courseId = req.query.courseId as string | undefined;
   const teacherId =
-    req.user?.role === 'TEACHER'
-      ? req.user.id
-      : (req.query.teacherId as string | undefined);
+    req.user?.role === 'TEACHER' ? req.user.id : (req.query.teacherId as string | undefined);
   const section = req.query.section as string | undefined;
   const searchTerm = req.query.searchTerm as string | undefined;
   const sortBy = req.query.sortBy as string | undefined;
